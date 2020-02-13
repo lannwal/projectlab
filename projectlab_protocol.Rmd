@@ -1,0 +1,200 @@
+---
+title: "projectlab_protocol"
+author: "Lukas"
+date: "5 2 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+networks can be infered from a variety of data with a variety of methods. 
+
+being able to switch between different representations and layers of abstracting is important for being able to consider the whole system when dealing with 'wiring' of specific circuits.
+What can we infer from the variety of different networks (essentiality, co-essentiality, interaction, STRING, phosphosite )
+
+I have decided to first focus on replicating parts of the kim 2019 paper to get into the workflow and check if the data make sense or if they left something out.
+Especially interesting for us are cdk proteins and their coessentiality.
+
+### a primer on CDKs
+cycline dependend kinases are key regulatory enzymes that are involved in a variety of key regulatory and consequently disease networks. it is especially important in cancer, as one of the hallmarks is sustained proliferation signalling, --- kinases related to cell cycle and proliferation.
+
+
+### a primer on crispr-cas9 essentiality screens
+one problem for this method is that there are error when the region
+that is targeted has a high copy number. leads to G2 cell cylce arrest phenotype.
+CERES (mayers et al 2017) addresses this.
+lentivirus hairpin RNA. (see the issues with normalization in meyer, )
+
+### how are the data generated
+cells that express Cas9 are infected with a lentiviral snRNA master library.
+depending on experiment, either newly infected cells, original master library, bor both are sequenced to measrue initial sgRNA levels. number of passages are determined and the surviving cells are harvested. final sgRNA frequency evaluated.
+
+most packages use summary statistics (BAGEL,JACKS). this ignores variation unique to specific experimental stages. BAGEL, JACKS and others rely on log fold change of read abundance.
+ACE does this via a hierarchical bayesian model  - likelihood ratio testing framework for inferring degree of essentiality and significance of differences between sets of samples.
+
+
+### the structure of our dataset 18Q1
+
+gene_effect 
+CERES data normalized to positive controls.
+columns: genes in format 'Hugo (Entrez)'
+rows: cell lines in format 'ID_Primarysite'
+
+gene_dependency
+probability that knocking out that gene has a real depletion effect
+same as genes_effect
+
+gene_fdr
+gives all the genes that are not true dependencies, based on how many genes score 'left of it'.
+same format
+
+guide_efficacy
+sgrna nucleotides
+efficacy - CERES inferred efficacy
+
+pan_dependent_genes
+list of genes, one per row, of all identified as dependencies in all lines.
+their scores are used as dependent distribution for inferrring dependancy probability.
+
+## 4 things: read count, log fold change, gene effect, gene dependency
+
+#############
+samples are identified by 96 snp calls that uniquely identify the cell line.
+###############
+
+can you explain the difference between essentiality in hart
+and dependancy in dempster?
+
+####
+Beginning with DepMap_public_19Q3, Achilles releases will use a list of common essential genes found from CRISPR screens. This will create a change in the scale of gene_effect in 19Q3, amplifying all values by about 30%
+####
+
+
+dependencies are predicted using sci-kit learn random forest.
+with 100 estimators tops.
+
+
+### what different in the newer depmap data?
+18Q1 standardized file naming system and formatting
+entrez IDs to gene names
+introduced gene_dependancy, pan_dependant_genes
+
+18Q2
+Changed copy number prioritization from preferring Broad data of all kinds topreferring WES data from all sources;Removed compound gene annotations
+
+18Q4
+Changed cell line indexing to use DepMap IDs (called Broad IDs in thisdataset only);Changed QC to drop individual replicates that show insufficient controlseparation before conducting cell line QC
+
+18Q5
+Introduced batch corrected versions of gene_effect, gene_dependency, andpan_dependent_genes
+
+see labnotes 110220.
+
+
+### steps to do for the project lab
+try to get bagel to run on the data as described in the version 2 documentation, - check
+look for ACE. plot in histogram format bayes factor (normalized) against the cell lines. - check
+associate the cell lines with the correlation data
+compute the correlations for different cell lines, plot
+look at the resulting coessentiality matrix and compare to Kim2019
+What do the later steps contribute? (eg KEGG enrichment)
+
+
+### producing a coessentiality matrix
+
+having successfully run bagel on a dataset, we arrive at bf for all the 
+identified genes. to further use this data, we do pairwise correlation coefficient calculation. kegg terms are used as a benchmark.
+
+x<-matrix(c(2,3,4,5,5,2,12,4,3,4,2,43),nrow=3)
+y <- c(23,45,32,17)
+heatmap(x,y)
+
+### pca for getting essential genes, bayes factors, binning, poisson processes
+the old standard genes used for calculations in bagel was infered by the 
+hart lab via pca based analysis. 
+(when i do ranking and then pearson correlation, do i do spearman correlation?)
+
+a <- c(2,4,3,1)
+b <- cor(a,a)
+
+
+## Methods
+data from pooled CRISPR screen (mayer et al 2017).
+processed with methods described in Kim 2019. that is their own analysis software
+bagel, which performs a foldchange calculation, bayes factor calculation, as well as a precission recall calculation. 
+(todo: download figshare data with wget reliably)
+
+used matplotlib to graph the correlations
+
+
+
+## Results
+
+df <- data.frame(one=c(5,2,3,4),
+                 two=c(4,1,4,2),
+                 three=c(3,4,6,8)
+                 )
+rownames(df) <- toupper(letters[1:4])
+
+df_rank <- apply(df,2,rank,ties.method="min")
+df_rank
+df_sorted <- data.frame(apply(df,2,sort))
+df_sorted
+
+df_mean <- apply(df_sorted,1,mean)
+df_mean
+
+b <- df_sorted$one
+a <- df_sorted$two
+boxplot(a ~ b)
+
+
+> z <-chol(s<- toeplitz(.9 ^ (0:31)))
+> plot(z)
+> heatmap(z)
+
+## additional writeup on achilles data
+in the newer versions of achilles datasets there are 600+ cell lines as well as more preprocessed data.
+the processing happens with CERES software outlined in Meyer et al 2017. 
+We have no idea yet if similar results are to be expected with ACE.
+
+
+## Appendix A: scripts
+generating coessentiality network
+either calculate correlation matrix or use the preprocessed data
+
+## Appendix B: plots
+
+network plots with cytoscape.
+processing quality plots with R and python.
+
+You can also embed plots, for example:
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+## Appendix C: lustiges thesisbuch
+
+pinguine die auf computern spielen, happy, new reservoir (ssd1)
+cas9 und lentiviren
+menschliche zellen, deren gene (gluehbirnen) ausgeknipst werden
+a:network + cells: now kiss! - b: nested: holding a and distributions, nested2 a differential operator and b
+
+
+some kinases we like.
+scale free network.
+a wizard casting probability distributions on [experimentors, yeast, organs] - video game style.
+
+driver oncogene: speed racer
+someone crawling through pipelines, holding one hand out towards viewer
+
+
+hapax legomenon plots (hapax legomenon - the plural of which should not exist), eye cancer from looking at bad graphs meme.
+
+puppy linux in this_is_fine_meme.jpg
+
+
