@@ -29,13 +29,15 @@ that is targeted has a high copy number. leads to G2 cell cylce arrest phenotype
 CERES (mayers et al 2017) addresses this.
 lentivirus hairpin RNA. (see the issues with normalization in meyer, )
 
+## our data
+
 ### how are the data generated
 cells that express Cas9 are infected with a lentiviral snRNA master library.
 depending on experiment, either newly infected cells, original master library, bor both are sequenced to measrue initial sgRNA levels. number of passages are determined and the surviving cells are harvested. final sgRNA frequency evaluated.
 
 most packages use summary statistics (BAGEL,JACKS). this ignores variation unique to specific experimental stages. BAGEL, JACKS and others rely on log fold change of read abundance.
 ACE does this via a hierarchical bayesian model  - likelihood ratio testing framework for inferring degree of essentiality and significance of differences between sets of samples.
-
+test git
 
 ### the structure of our dataset 18Q1
 
@@ -60,7 +62,7 @@ pan_dependent_genes
 list of genes, one per row, of all identified as dependencies in all lines.
 their scores are used as dependent distribution for inferrring dependancy probability.
 
-## 4 things: read count, log fold change, gene effect, gene dependency
+### 4 things: read count, log fold change, gene effect, gene dependency
 
 #############
 samples are identified by 96 snp calls that uniquely identify the cell line.
@@ -95,6 +97,20 @@ Introduced batch corrected versions of gene_effect, gene_dependency, andpan_depe
 see labnotes 110220.
 
 
+### additional writeup on achilles data
+in the newer versions of achilles datasets there are 600+ cell lines as well as more preprocessed data.
+the processing happens with CERES software outlined in Meyer et al 2017. 
+We have no idea yet if similar results are to be expected with ACE.
+
+
+## Methods
+data from pooled CRISPR screen (mayer et al 2017).
+processed with methods described in Kim 2019. that is their own analysis software
+bagel, which performs a foldchange calculation, bayes factor calculation, as well as a precission recall calculation. 
+(todo: download figshare data with wget reliably)
+
+used matplotlib to graph the correlations
+
 ### steps to do for the project lab
 try to get bagel to run on the data as described in the version 2 documentation, - check
 look for ACE. plot in histogram format bayes factor (normalized) against the cell lines. - check
@@ -111,7 +127,8 @@ identified genes. to further use this data, we do pairwise correlation coefficie
 
 x<-matrix(c(2,3,4,5,5,2,12,4,3,4,2,43),nrow=3)
 y <- c(23,45,32,17)
-heatmap(x,y)
+
+
 
 ### pca for getting essential genes, bayes factors, binning, poisson processes
 the old standard genes used for calculations in bagel was infered by the 
@@ -120,15 +137,6 @@ hart lab via pca based analysis.
 
 a <- c(2,4,3,1)
 b <- cor(a,a)
-
-
-## Methods
-data from pooled CRISPR screen (mayer et al 2017).
-processed with methods described in Kim 2019. that is their own analysis software
-bagel, which performs a foldchange calculation, bayes factor calculation, as well as a precission recall calculation. 
-(todo: download figshare data with wget reliably)
-
-used matplotlib to graph the correlations
 
 
 
@@ -150,34 +158,29 @@ df_mean
 
 b <- df_sorted$one
 a <- df_sorted$two
-boxplot(a ~ b)
+
 
 
 > z <-chol(s<- toeplitz(.9 ^ (0:31)))
 > plot(z)
 > heatmap(z)
 
-## additional writeup on achilles data
-in the newer versions of achilles datasets there are 600+ cell lines as well as more preprocessed data.
-the processing happens with CERES software outlined in Meyer et al 2017. 
-We have no idea yet if similar results are to be expected with ACE.
+## Appendices
 
-
-## Appendix A: scripts
+### Appendix A: scripts
 generating coessentiality network
 either calculate correlation matrix or use the preprocessed data
 
-## Appendix B: plots
+### Appendix B: plots
 
 network plots with cytoscape.
 processing quality plots with R and python.
 
 You can also embed plots, for example:
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+with heatmap2, ggplot, ggraph
 
-## Appendix C: lustiges thesisbuch
+
+### Appendix C: lustiges thesisbuch
 
 pinguine die auf computern spielen, happy, new reservoir (ssd1)
 cas9 und lentiviren
@@ -189,7 +192,7 @@ some kinases we like.
 scale free network.
 a wizard casting probability distributions on [experimentors, yeast, organs] - video game style.
 
-driver oncogene: speed racer
+driver oncogene: speed racer    , also penguin racers - linux drives
 someone crawling through pipelines, holding one hand out towards viewer
 
 
